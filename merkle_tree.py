@@ -7,13 +7,17 @@ ROOT  = '' # Root hash of Merkle Tree
 
 class MerkleTree(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, hash_list):
+        self.hash_list = hash_list
+        self.elements = ELEMENTS
 
-    def get_sha2_hex_value(self, string):
+    def get_root(self):
+        return ROOT
+
+    def get_sha2_hex_value(self, hash_list):
         try:
             m = hashlib.sha256()
-            m.update(string)
+            m.update(hash_list)
         except Exception:
             raise
         return m.hexdigest()
@@ -23,8 +27,7 @@ class MerkleTree(object):
         Accepts the current row of the
         Merkle Tree and returns the next row
         '''
-
-        # Determine if we need a buddy to hash with
+        # Determine if we need a leaf buddy to hash with
         # Create a buddy if odd number of items
         list_len = len(merkle_row)
         while list_len % 2 != 0:
@@ -37,17 +40,23 @@ class MerkleTree(object):
             hashed = self.get_sha2_hex_value(str(item))
             hashed_row.append(hashed)
 
-        # Hash buddies together
+        # Hash leaf buddies together
         next_row = []
-        for key in [hashed_row[x:x+2] for x in xrange(0, len(hashed_row), 2)]:
+        for k in [hashed_row[x:x+2] for x in xrange(0, len(hashed_row), 2)]:
                 # k is a list with two items that we'll hash together
-                hasher = self.get_sha2_hex_value(key[0]+key[1])
+                hasher = self.get_sha2_hex_value(k[0]+k[1])
                 next_row.append(hasher)
 
         return next_row
 
+    def merkle_tree(self):
+        next_row = self.get_next_merkle_row(self.elements)
+
+        # loop here to find root
+        temptxlist = self.get_next_merkle_row(next_row)
+        print temptxlist
+
 
 if __name__ == "__main__":
-    cls = MerkleTree()
-    mk = cls.get_next_merkle_row(ELEMENTS)
-    print mk
+    cls = MerkleTree(ELEMENTS)
+    mk = cls.merkle_tree()
