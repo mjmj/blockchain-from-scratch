@@ -6,26 +6,25 @@ import json
 from hashlib import sha256
 from time import time
 
-import base58
-
 
 class StringUtil(object):
 
-    def gen_hash(self, hashable_string):
-        """Returns sha256 hashed string"""
+    def gen_hash(self, data):
+        """Accepts a string and returns a
+        sha256 hashed string
+        """
         try:
-            sha_sig = sha256(hashable_string.encode()).hexdigest()
-            encoded_str = base58.b58encode(sha_sig)
-            decoded_str = encoded_str.decode("utf-8")
+            data = unicode(data, "utf-8")
+            sha = sha256(data).hexdigest()
         except Exception:
             raise
-        return decoded_str
+        return sha
 
 class Block(object):
     """Class definition for Block Object"""
     count = 0
 
-    def __init__(self, previous_hash, data):
+    def __init__(self, data, previous_hash):
         self.util = StringUtil()
         self.previous_hash = previous_hash
         self.data = data
@@ -35,7 +34,8 @@ class Block(object):
         self.block_id = Block.count
 
     def __repr__(self):
-        return 'This Block\n\tID: {}, \n\thash: {}, \n\tprevious hash: {}\n'.format(self.block_id, self.hash, self.previous_hash)
+        return 'This Block\n\tID: {}, \n\thash: {}, \n\tprevious hash: '\
+            '{}\n'.format(self.block_id, self.hash, self.previous_hash)
 
     def get_hash(self):
         return self.hash
@@ -72,12 +72,17 @@ class Blockchain(object):
             print block
 
     def validate_chain(self):
-        pass
+        """
+        Simple validator. You'd want to use something like
+        an in memory file to validate you blockchain in prod.
+        """
+        for x in range(len(self.chain) -1):
+            if self.chain[x].calculate_hash() != self.chain[x+1].get_previous_hash():
+                print 'There is a problem in the chain'
 
 def block_generator(chain, blocks):
     """
-    Simple method to generate and add
-    blocks to your blockchain
+    Method to generate & add blocks to your blockchain
     """
     block = Block('This Is Block 1', '0')
     chain.add(block)
@@ -89,6 +94,7 @@ def block_generator(chain, blocks):
 if __name__ == "__main__":
     chain = Blockchain('Michael\'s Blockchain')
     block_generator(chain, 5)
-    bad_block = Block('This is a bad block', 'invalid_block')
+    bad_block = Block('This is a bad block', '11010001101')
     chain.add(bad_block)
     chain.view_chain()
+    chain.validate_chain()
