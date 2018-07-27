@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import datetime
 import json
 
 from hashlib import sha256
@@ -46,7 +45,7 @@ class Block(object):
     def get_data(self):
         return self.data
 
-    def get_timetstamp(self):
+    def get_timestamp(self):
         return self.ts
 
     def calculate_hash(self):
