@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
+import os
 import hashlib
 
-PASSWORD = b"blockchainclass"
+PASSWORD = os.environ['BLOCKCHAIN_PASSWORD']
 
 m = hashlib.sha256()
 m.update(PASSWORD)
